@@ -16,14 +16,14 @@ const PropertyDetailPage = () => {
   const [error, setError] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const loadProperty = async () => {
+const loadProperty = async () => {
     try {
       setLoading(true);
       setError("");
       const propertyData = await propertyService.getById(parseInt(id));
       setProperty(propertyData);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Property not found");
       console.error("Error loading property:", err);
     } finally {
       setLoading(false);

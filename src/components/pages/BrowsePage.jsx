@@ -35,14 +35,14 @@ const BrowsePage = ({ searchQuery, onSearch }) => {
   } = usePagination(filteredProperties, 12);
 
   // Load properties
-  const loadProperties = async () => {
+const loadProperties = async () => {
     try {
       setLoading(true);
       setError("");
       const data = await propertyService.getAll();
       setProperties(data);
     } catch (err) {
-      setError("Failed to load properties");
+      setError(err.message || "Failed to load properties");
       console.error("Error loading properties:", err);
     } finally {
       setLoading(false);

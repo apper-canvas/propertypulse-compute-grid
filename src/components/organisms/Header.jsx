@@ -1,13 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import SearchBar from "@/components/molecules/SearchBar";
 import Button from "@/components/atoms/Button";
 import ApperIcon from "@/components/ApperIcon";
+import { AuthContext } from "../../App";
 
 const Header = ({ onSearch, searchQuery }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const { logout } = useContext(AuthContext);
 
   const navigation = [
     { name: "Browse", href: "/browse", icon: "Home" },
@@ -39,7 +43,7 @@ const Header = ({ onSearch, searchQuery }) => {
             <SearchBar onSearch={onSearch} />
           </div>
 
-          {/* Desktop Navigation */}
+{/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-1">
             {navigation.map((item) => (
               <Link
@@ -55,6 +59,17 @@ const Header = ({ onSearch, searchQuery }) => {
                 <span>{item.name}</span>
               </Link>
             ))}
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={logout}
+                className="flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+              >
+                <ApperIcon name="LogOut" className="h-4 w-4" />
+                <span>Logout</span>
+              </Button>
+            )}
           </nav>
 
           {/* Mobile menu button */}
