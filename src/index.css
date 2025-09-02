@@ -143,5 +143,72 @@ input[type="range"]::-moz-range-track {
 .shimmer {
   animation: shimmer 1.2s ease-in-out infinite;
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 800px 104px;
+background-size: 800px 104px;
+}
+
+/* Leaflet Map Styles */
+@import 'leaflet/dist/leaflet.css';
+
+.map-container {
+  height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.custom-marker {
+  background: white;
+  border: 2px solid #3182CE;
+  border-radius: 20px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #3182CE;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+}
+
+.custom-marker:hover {
+  background: #3182CE;
+  color: white;
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+.cluster-marker {
+  background: #3182CE;
+  border: 3px solid white;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cluster-marker.small {
+  background: #48BB78;
+}
+
+.cluster-marker.medium {
+  background: #ED8936;
+}
+
+.cluster-marker.large {
+  background: #E53E3E;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  min-width: 280px;
+}
+
+.leaflet-popup-tip {
+  background: white;
 }
