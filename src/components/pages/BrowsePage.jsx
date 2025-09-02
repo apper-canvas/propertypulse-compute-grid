@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { usePropertyFilters } from "@/hooks/usePropertyFilters";
 import { usePagination } from "@/hooks/usePagination";
 import propertyService from "@/services/api/propertyService";
-import FilterSidebar from "@/components/organisms/FilterSidebar";
 import PropertyGrid from "@/components/organisms/PropertyGrid";
+import FilterSidebar from "@/components/organisms/FilterSidebar";
 import Pagination from "@/components/molecules/Pagination";
 
 const BrowsePage = ({ searchQuery, onSearch }) => {
@@ -79,22 +79,24 @@ const loadProperties = async () => {
     setIsFilterSidebarOpen(!isFilterSidebarOpen);
   };
 
-  const activeFiltersCount = Object.values(filters).reduce((count, value) => {
-    if (Array.isArray(value)) {
-      return count + (value.length > 0 ? 1 : 0);
-    }
-    if (typeof value === "string") {
-      return count + (value.trim() !== "" ? 1 : 0);
-    }
-    if (typeof value === "number") {
-      const isDefaultValue = 
-        (value === 0 && (filters.minPrice === 0 || filters.minBeds === 0 || filters.minBaths === 0 || filters.minSquareFeet === 0)) ||
-        (value === 5000000 && filters.maxPrice === 5000000) ||
-        (value === 10000 && filters.maxSquareFeet === 10000);
-      return count + (isDefaultValue ? 0 : 1);
-    }
-    return count;
-  }, 0);
+const activeFiltersCount = useMemo(() => {
+    return Object.values(filters).reduce((count, value) => {
+      if (Array.isArray(value)) {
+        return count + (value.length > 0 ? 1 : 0);
+      }
+      if (typeof value === "string") {
+        return count + (value.trim() !== "" ? 1 : 0);
+      }
+      if (typeof value === "number") {
+        const isDefaultValue = 
+          (value === 0 && (filters.minPrice === 0 || filters.minBeds === 0 || filters.minBaths === 0 || filters.minSquareFeet === 0)) ||
+          (value === 5000000 && filters.maxPrice === 5000000) ||
+          (value === 10000 && filters.maxSquareFeet === 10000);
+        return count + (isDefaultValue ? 0 : 1);
+      }
+      return count;
+    }, 0);
+  }, [filters]);
 
   return (
     <div className="flex h-[calc(100vh-4rem)]">
