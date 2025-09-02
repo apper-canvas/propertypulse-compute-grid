@@ -13,10 +13,11 @@ const Header = ({ onSearch, searchQuery }) => {
   const { user, isAuthenticated } = useSelector((state) => state.user);
   const { logout } = useContext(AuthContext);
 
-  const navigation = [
+const navigation = [
     { name: "Browse", href: "/browse", icon: "Home" },
     { name: "Map View", href: "/map", icon: "Map" },
-{ name: "Saved", href: "/saved", icon: "Heart" },
+    { name: "Market Insights", href: "/market-insights", icon: "TrendingUp" },
+    { name: "Saved", href: "/saved", icon: "Heart" },
     { name: "Agents", href: "/agents", icon: "Users" },
     { name: "Contact", href: "/contact", icon: "Phone" }
   ];

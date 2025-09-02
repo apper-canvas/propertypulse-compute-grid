@@ -65,7 +65,7 @@ const propertyService = {
     return updateableFields;
   },
 
-  async getAll() {
+async getAll() {
     try {
       await this.delay();
       const apperClient = this.getApperClient();
@@ -87,7 +87,11 @@ const propertyService = {
           {"field": {"Name": "images_c"}},
           {"field": {"Name": "features_c"}},
           {"field": {"Name": "listing_date_c"}},
-          {"field": {"Name": "status_c"}}
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "neighborhood_c"}},
+          {"field": {"Name": "school_district_c"}},
+          {"field": {"Name": "year_built_c"}},
+          {"field": {"Name": "commute_score_c"}}
         ],
         orderBy: [{"fieldName": "Id", "sorttype": "DESC"}],
         pagingInfo: {"limit": 100, "offset": 0}
@@ -371,8 +375,7 @@ const propertyService = {
       throw new Error("Failed to load properties");
     }
   },
-
-  async searchProperties(query) {
+async searchProperties(query, advancedFilters = {}) {
     try {
       await this.delay();
       const apperClient = this.getApperClient();
@@ -394,9 +397,19 @@ const propertyService = {
           {"field": {"Name": "images_c"}},
           {"field": {"Name": "features_c"}},
           {"field": {"Name": "listing_date_c"}},
-          {"field": {"Name": "status_c"}}
+          {"field": {"Name": "status_c"}},
+          {"field": {"Name": "neighborhood_c"}},
+          {"field": {"Name": "school_district_c"}},
+          {"field": {"Name": "year_built_c"}},
+          {"field": {"Name": "commute_score_c"}}
         ],
-        whereGroups: [{
+        where: [],
+        whereGroups: []
+      };
+
+      // Basic text search
+      if (query && query.trim()) {
+        params.whereGroups.push({
           "operator": "OR",
           "subGroups": [
             {"conditions": [{"fieldName": "address_c", "operator": "Contains", "values": [query]}], "operator": ""},
@@ -406,8 +419,49 @@ const propertyService = {
             {"conditions": [{"fieldName": "description_c", "operator": "Contains", "values": [query]}], "operator": ""},
             {"conditions": [{"fieldName": "features_c", "operator": "Contains", "values": [query]}], "operator": ""}
           ]
-        }]
-      };
+        });
+      }
+
+      // Advanced filters
+      if (advancedFilters.schoolDistricts && advancedFilters.schoolDistricts.length > 0) {
+        params.where.push({
+          "FieldName": "school_district_c",
+          "Operator": "ExactMatch",
+          "Values": advancedFilters.schoolDistricts,
+          "Include": true
+        });
+      }
+
+      if (advancedFilters.neighborhoods && advancedFilters.neighborhoods.length > 0) {
+        params.where.push({
+          "FieldName": "neighborhood_c",
+          "Operator": "ExactMatch",
+          "Values": advancedFilters.neighborhoods,
+          "Include": true
+        });
+      }
+
+      if (advancedFilters.maxCommuteTime && advancedFilters.maxCommuteTime < 60) {
+        params.where.push({
+          "FieldName": "commute_score_c",
+          "Operator": "LessThanOrEqualTo",
+          "Values": [advancedFilters.maxCommuteTime],
+          "Include": true
+        });
+      }
+
+      if (advancedFilters.propertyAge) {
+        const currentYear = new Date().getFullYear();
+        const minYear = currentYear - advancedFilters.propertyAge.max;
+        const maxYear = currentYear - advancedFilters.propertyAge.min;
+        
+        params.where.push({
+          "FieldName": "year_built_c",
+          "Operator": "Between",
+          "Values": [minYear, maxYear],
+          "Include": true
+        });
+      }
 
       const response = await apperClient.fetchRecords('property_c', params);
       

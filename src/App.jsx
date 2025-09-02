@@ -11,6 +11,7 @@ import SavedPage from "@/components/pages/SavedPage";
 import ContactPage from "@/components/pages/ContactPage";
 import AgentListPage from "@/components/pages/AgentListPage";
 import AgentDetailPage from "@/components/pages/AgentDetailPage";
+import MarketInsightsPage from "@/components/pages/MarketInsightsPage";
 import Login from '@/components/pages/Login';
 import Signup from '@/components/pages/Signup';
 import Callback from '@/components/pages/Callback';
@@ -167,8 +168,13 @@ function App() {
             </Layout>
           } />
           <Route path="/agents/:id" element={
-            <Layout>
+<Layout>
               <AgentDetailPage />
+            </Layout>
+          } />
+          <Route path="/market-insights" element={
+            <Layout>
+              <MarketInsightsPage />
             </Layout>
           } />
         </Routes>

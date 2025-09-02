@@ -5,13 +5,13 @@ import propertyService from "@/services/api/propertyService";
 import PropertyGrid from "@/components/organisms/PropertyGrid";
 import FilterSidebar from "@/components/organisms/FilterSidebar";
 import Pagination from "@/components/molecules/Pagination";
-
+import AdvancedSearchModal from "@/components/molecules/AdvancedSearchModal";
 const BrowsePage = ({ searchQuery, onSearch }) => {
   const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
+const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
-
+  const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
   // Property filtering
   const { 
     filters, 
@@ -98,7 +98,7 @@ const activeFiltersCount = useMemo(() => {
     }, 0);
   }, [filters]);
 
-  return (
+return (
     <div className="flex h-[calc(100vh-4rem)]">
       {/* Filter Sidebar */}
       <FilterSidebar
@@ -108,6 +108,7 @@ const activeFiltersCount = useMemo(() => {
         hasActiveFilters={hasActiveFilters}
         isOpen={isFilterSidebarOpen}
         onClose={() => setIsFilterSidebarOpen(false)}
+        onAdvancedSearch={() => setIsAdvancedSearchOpen(true)}
       />
 
       {/* Main Content */}
@@ -121,6 +122,7 @@ const activeFiltersCount = useMemo(() => {
             onToggleFilters={toggleFilterSidebar}
             hasActiveFilters={hasActiveFilters}
             activeFiltersCount={activeFiltersCount}
+            onAdvancedSearch={() => setIsAdvancedSearchOpen(true)}
           />
 
           {/* Pagination */}
@@ -135,6 +137,18 @@ const activeFiltersCount = useMemo(() => {
           )}
         </div>
       </div>
+
+      {/* Advanced Search Modal */}
+      <AdvancedSearchModal
+        isOpen={isAdvancedSearchOpen}
+        onClose={() => setIsAdvancedSearchOpen(false)}
+        filters={filters}
+        onFiltersChange={handleFilterChange}
+        onApplyFilters={() => {
+          setIsAdvancedSearchOpen(false);
+          resetPage();
+        }}
+      />
     </div>
   );
 };
