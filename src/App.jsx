@@ -9,6 +9,8 @@ import PropertyDetailPage from "@/components/pages/PropertyDetailPage";
 import MapViewPage from "@/components/pages/MapViewPage";
 import SavedPage from "@/components/pages/SavedPage";
 import ContactPage from "@/components/pages/ContactPage";
+import AgentListPage from "@/components/pages/AgentListPage";
+import AgentDetailPage from "@/components/pages/AgentDetailPage";
 import Login from '@/components/pages/Login';
 import Signup from '@/components/pages/Signup';
 import Callback from '@/components/pages/Callback';
@@ -154,9 +156,19 @@ function App() {
               <SavedPage />
             </Layout>
           } />
-          <Route path="/contact" element={
+<Route path="/contact" element={
             <Layout>
               <ContactPage />
+            </Layout>
+          } />
+          <Route path="/agents" element={
+            <Layout>
+              <AgentListPage />
+            </Layout>
+          } />
+          <Route path="/agents/:id" element={
+            <Layout>
+              <AgentDetailPage />
             </Layout>
           } />
         </Routes>

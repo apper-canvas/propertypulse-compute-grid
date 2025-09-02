@@ -369,7 +369,11 @@ const PropertyDetailPage = () => {
                     <span>4.9 Rating • 127 Reviews</span>
                   </div>
                 </div>
-                <Button className="w-full" size="lg">
+<Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => navigate(`/agents/1?propertyId=${property.Id}`)}
+                >
                   <ApperIcon name="Phone" className="h-5 w-5 mr-2" />
                   Contact Agent
                 </Button>

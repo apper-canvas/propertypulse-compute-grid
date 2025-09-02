@@ -1,11 +1,54 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import agentService from "@/services/api/agentService";
+import { toast } from "react-toastify";
 import ApperIcon from "@/components/ApperIcon";
+import Error from "@/components/ui/Error";
+import Loading from "@/components/ui/Loading";
+import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
-
 const ContactPage = () => {
+  const navigate = useNavigate();
+  const [agents, setAgents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    loadAgents();
+  }, []);
+
+  const loadAgents = async () => {
+    setLoading(true);
+    try {
+      const agentData = await agentService.getAll();
+      setAgents(agentData || []);
+    } catch (err) {
+      setError(err.message);
+      console.error("Error loading agents:", err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredAgents = agents.filter(agent => {
+    if (!searchTerm) return true;
+    const search = searchTerm.toLowerCase();
+    return (
+      agent.agent_name_c?.toLowerCase().includes(search) ||
+      agent.specialties_c?.toLowerCase().includes(search) ||
+      agent.bio_c?.toLowerCase().includes(search)
+    );
+  });
+
+  const featuredAgents = filteredAgents.slice(0, 3);
+
+  if (loading) return <Loading />;
+  if (error) return <Error message={error} onRetry={loadAgents} />;
+
   return (
     <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             Contact Our Agents
@@ -15,9 +58,9 @@ const ContactPage = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Contact Methods */}
-          <div className="space-y-6">
+          <div className="lg:col-span-1 space-y-6">
             <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Get in Touch</h2>
               
@@ -81,45 +124,107 @@ const ContactPage = () => {
             </div>
           </div>
 
-          {/* Agent Directory Placeholder */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Featured Agents</h2>
-            
-            <div className="space-y-6">
-              {/* Agent Cards */}
-              {[
-                { name: "Sarah Johnson", title: "Senior Agent", phone: "(555) 123-4567" },
-                { name: "Michael Chen", title: "Listing Specialist", phone: "(555) 123-4568" },
-                { name: "Emily Rodriguez", title: "Buyer's Agent", phone: "(555) 123-4569" }
-              ].map((agent, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-gradient-to-r from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-semibold text-xl">
-                        {agent.name.split(' ').map(n => n[0]).join('')}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium text-gray-900">{agent.name}</h3>
-                      <p className="text-sm text-gray-600">{agent.title}</p>
-                      <p className="text-sm text-primary-600">{agent.phone}</p>
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Contact
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Agent Directory */}
+          <div className="lg:col-span-2">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-semibold text-gray-900">Our Agents</h2>
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/agents')}
+                  className="flex items-center gap-2"
+                >
+                  <ApperIcon name="Users" className="h-4 w-4" />
+                  View All Agents
+                </Button>
+              </div>
 
-            <div className="mt-6 p-4 bg-primary-50 rounded-lg text-center">
-              <p className="text-sm text-primary-700 mb-3">
-                Ready to get started?
-              </p>
-              <Button className="w-full">
-                <ApperIcon name="MessageSquare" className="h-4 w-4 mr-2" />
-                Schedule Consultation
-              </Button>
+              {/* Search */}
+              <div className="mb-6">
+                <div className="relative">
+                  <ApperIcon name="Search" className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search agents by name, specialty, or expertise..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  />
+                </div>
+              </div>
+              
+              {/* Agent Cards */}
+              <div className="space-y-4">
+                {featuredAgents.length === 0 ? (
+                  <div className="text-center py-8">
+                    <ApperIcon name="Users" className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500">No agents found matching your search.</p>
+                  </div>
+                ) : (
+                  featuredAgents.map((agent) => (
+                    <div key={agent.Id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-4">
+                        <div className="relative">
+                          {agent.photo_url_c ? (
+                            <img
+                              src={agent.photo_url_c}
+                              alt={agent.agent_name_c}
+                              className="w-16 h-16 rounded-full object-cover"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
+                          <div className={`w-16 h-16 bg-gradient-to-r from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold text-xl ${agent.photo_url_c ? 'hidden' : 'flex'}`}>
+                            {agent.agent_name_c?.split(' ').map(n => n[0]).join('') || 'A'}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-gray-900">{agent.agent_name_c}</h3>
+                          {agent.specialties_c && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {agent.specialties_c.split(',').slice(0, 2).map((specialty, index) => (
+                                <Badge key={index} variant="primary" className="text-xs">
+                                  {specialty.trim()}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          {agent.ratings_c && (
+                            <div className="flex items-center gap-1 mt-1">
+                              <ApperIcon name="Star" className="h-4 w-4 text-yellow-500" />
+                              <span className="text-sm text-gray-600">{Number(agent.ratings_c).toFixed(1)}</span>
+                            </div>
+                          )}
+                          {agent.phone_c && (
+                            <p className="text-sm text-primary-600">{agent.phone_c}</p>
+                          )}
+                        </div>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => navigate(`/agents/${agent.Id}`)}
+                        >
+                          Contact
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {agents.length > 3 && (
+                <div className="mt-6 text-center">
+                  <Button 
+                    onClick={() => navigate('/agents')}
+                    className="w-full sm:w-auto"
+                  >
+                    <ApperIcon name="Users" className="h-4 w-4 mr-2" />
+                    Browse All {agents.length} Agents
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>

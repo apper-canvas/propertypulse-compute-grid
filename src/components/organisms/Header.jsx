@@ -16,7 +16,8 @@ const Header = ({ onSearch, searchQuery }) => {
   const navigation = [
     { name: "Browse", href: "/browse", icon: "Home" },
     { name: "Map View", href: "/map", icon: "Map" },
-    { name: "Saved", href: "/saved", icon: "Heart" },
+{ name: "Saved", href: "/saved", icon: "Heart" },
+    { name: "Agents", href: "/agents", icon: "Users" },
     { name: "Contact", href: "/contact", icon: "Phone" }
   ];
 
