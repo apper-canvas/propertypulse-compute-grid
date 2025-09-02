@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
+import savedPropertiesService from "@/services/api/savedPropertiesService";
 import { formatAddress, formatPrice, formatPropertyType, formatSquareFeet } from "@/utils/formatters";
 import propertyService from "@/services/api/propertyService";
 import ApperIcon from "@/components/ApperIcon";
@@ -8,6 +9,7 @@ import Error from "@/components/ui/Error";
 import Loading from "@/components/ui/Loading";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
+
 const PropertyDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -15,8 +17,26 @@ const PropertyDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isSaved, setIsSaved] = useState(false);
 
-const loadProperty = async () => {
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      if (id) {
+        const saved = await savedPropertiesService.isSaved(id);
+        setIsSaved(saved);
+      }
+    };
+    checkSavedStatus();
+  }, [id]);
+
+  const handleToggleSave = async () => {
+    const result = await savedPropertiesService.toggle(id);
+    if (result.success) {
+      setIsSaved(!isSaved);
+    }
+};
+
+  const loadProperty = async () => {
     try {
       setLoading(true);
       setError("");
@@ -157,8 +177,8 @@ const loadProperty = async () => {
       </section>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Property Details - Left Column */}
           <div className="lg:col-span-2 space-y-8">
             {/* Property Header */}
@@ -357,10 +377,22 @@ const loadProperty = async () => {
 
               {/* Action Buttons */}
               <div className="bg-white rounded-xl shadow-sm p-6">
-                <div className="space-y-3">
-                  <Button variant="secondary" className="w-full" size="lg">
-                    <ApperIcon name="Heart" className="h-5 w-5 mr-2" />
-                    Save Property
+<div className="space-y-3">
+                  <Button 
+                    variant="secondary" 
+                    className="w-full" 
+                    size="lg"
+                    onClick={handleToggleSave}
+                  >
+                    <ApperIcon 
+                      name="Heart" 
+                      className={`h-5 w-5 mr-2 transition-colors duration-200 ${
+                        isSaved 
+                          ? "text-red-500 fill-current" 
+                          : "text-gray-600"
+                      }`}
+                    />
+                    {isSaved ? "Remove from Saved" : "Save Property"}
                   </Button>
                   <Button variant="outline" className="w-full" size="lg">
                     <ApperIcon name="Share" className="h-5 w-5 mr-2" />

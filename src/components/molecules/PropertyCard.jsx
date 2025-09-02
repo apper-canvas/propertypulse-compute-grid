@@ -1,12 +1,30 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "@/components/atoms/Card";
 import Badge from "@/components/atoms/Badge";
 import ApperIcon from "@/components/ApperIcon";
 import { formatPrice, formatBedBath, formatSquareFeet, formatPropertyType } from "@/utils/formatters";
+import savedPropertiesService from "@/services/api/savedPropertiesService";
 
 const PropertyCard = ({ property }) => {
   const navigate = useNavigate();
+  const [isSaved, setIsSaved] = useState(false);
+
+  useEffect(() => {
+    const checkSavedStatus = async () => {
+      const saved = await savedPropertiesService.isSaved(property.Id);
+      setIsSaved(saved);
+    };
+    checkSavedStatus();
+  }, [property.Id]);
+
+  const handleToggleSave = async (e) => {
+    e.stopPropagation(); // Prevent card click navigation
+    const result = await savedPropertiesService.toggle(property.Id);
+    if (result.success) {
+      setIsSaved(!isSaved);
+    }
+  };
 
   const handleCardClick = () => {
     navigate(`/property/${property.Id}`);
@@ -35,16 +53,31 @@ const PropertyCard = ({ property }) => {
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Status Badge */}
+{/* Status Badge */}
         <div className="absolute top-4 left-4">
           <Badge variant={getStatusBadge(property.status)} className="capitalize">
             {property.status}
           </Badge>
         </div>
 
+        {/* Save Heart Icon */}
+        <button
+          onClick={handleToggleSave}
+          className="absolute top-4 right-4 p-2 bg-white/90 hover:bg-white rounded-full shadow-sm transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          aria-label={isSaved ? "Remove from saved" : "Save property"}
+        >
+          <ApperIcon 
+            name="Heart" 
+            className={`h-5 w-5 transition-colors duration-200 ${
+              isSaved 
+                ? "text-red-500 fill-current" 
+                : "text-gray-600 hover:text-red-500"
+            }`}
+          />
+        </button>
+
         {/* Property Type Badge */}
-        <div className="absolute top-4 right-4">
+        <div className="absolute top-16 right-4">
           <Badge variant="primary" className="bg-white/90 text-gray-900">
             {formatPropertyType(property.propertyType)}
           </Badge>
